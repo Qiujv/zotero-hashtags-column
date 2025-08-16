@@ -1,12 +1,9 @@
 let addonId, rootURI;
 
+/** @param {any} data @param {any} reason */
 function install(data, reason) { }
+/** @param {any} data @param {any} reason */
 function uninstall(data, reason) { }
-
-function getPrefs() {
-  const prefValue = Zotero.Prefs.get("extensions.special-tags-column.prefs") || "{}";
-  return JSON.parse(typeof prefValue === 'string' ? prefValue : "{}");
-}
 
 const COLUMN = {
   dataKey: "specialTags",
@@ -15,51 +12,80 @@ const COLUMN = {
   width: "120",
   fixedWidth: false,
   zoteroPersist: ["width", "hidden", "sortDirection"],
+
+  /** @param {Zotero.Item} item @param {string} dataKey */
   dataProvider: (item, dataKey) => {
     if (!item.isRegularItem()) {
-      Zotero.debug("Special Tags Column: Item " + item.id + " is not a regular item");
       return "";
     }
 
-    // 获取条目的所有标签
     try {
       const tags = item.getTags();
-      Zotero.debug("Special Tags Column: Item " + item.id + " tags - " + JSON.stringify(tags));
 
-      // 提取标签文本
       const tagNames = [];
       for (const tag of tags) {
         if (typeof tag === 'string') {
           tagNames.push(tag);
         } else if (tag && typeof tag === 'object') {
-          tagNames.push(tag.tag || tag.name || "");
+          tagNames.push(tag.tag || "");
         }
       }
-      Zotero.debug("Special Tags Column: Item " + item.id + " tag names - " + JSON.stringify(tagNames));
 
-      // 筛选以#开头的标签
-      const hashTags = tagNames.filter(t => t && t.startsWith("#"));
-      Zotero.debug("Special Tags Column: Item " + item.id + " hash tags - " + JSON.stringify(hashTags));
+      let specialPrefixes = ["#", "@", "!", "%"];
 
-      // 返回标签字符串
-      const result = hashTags.join(" ");
-      Zotero.debug("Special Tags Column: Item " + item.id + " result - " + result);
+      const specialTags = tagNames.filter(t => t && specialPrefixes.some(prefix => t.startsWith(prefix)));
+
+      const result = specialTags.join(" ");
       return result;
-    } catch (e) {
-      Zotero.debug("Special Tags Column: Error in dataProvider - " + e.message);
+    } catch (/** @type {any} */ e) {
+      const errorMessage = e.message || String(e);
+      Zotero.logError(new Error("Special Tags Column: Error in dataProvider - " + errorMessage));
       return "";
     }
-  }
+  },
+
+  // /** @param {number} index @param {string} data @param {any} column @param {Document} cell */
+  // renderCell: (index, data, column, cell) => {
+  //   // 清空 cell 原有内容
+  //   cell.replaceChildren();
+
+  //   if (!data) return;
+
+  //   const document = Zotero.getMainWindow().document;
+  //   const tags = data.split(" ").filter(t => t.length > 0);
+
+  //   tags.forEach((tag, i) => {
+  //     if (i > 0) {
+  //       cell.appendChild(document.createTextNode(" "));
+  //     }
+
+  //     const span = document.createElement("span");
+  //     span.textContent = tag;
+
+  //     // 按前缀上色
+  //     switch (tag.charAt(0)) {
+  //       case "#":
+  //         span.style.setProperty("color", "#1976d2", "important");
+  //         break;
+  //       case "@":
+  //         span.style.setProperty("color", "#f57c00", "important");
+  //         break;
+  //       default:
+  //         span.style.setProperty("color", "#000000", "important");
+  //     }
+  //     cell.appendChild(span);
+  //   });
+  // }
 };
 
+/** @param {any} data @param {any} reason */
 function startup(data, reason) {
   addonId = data.id;
   rootURI = data.rootURI;
-  Zotero.debug("Special Tags Column: bootstrap.js loaded.");
   Zotero.ItemTreeManager.registerColumn(COLUMN);
-  Zotero.debug("Special Tags Column: Column registration call executed.");
 }
 
+/** @param {any} data @param {any} reason */
 function shutdown(data, reason) {
   if (reason === "APP_SHUTDOWN") return;
   try {
