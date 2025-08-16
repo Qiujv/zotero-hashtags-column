@@ -1,0 +1,15 @@
+{
+	"manifest_version": 2,
+	"name": "Special Tags Column",
+	"version": "0.0.1",
+	"description": "Display pre-defined ‘special’ tags in a dedicated item-tree column (Zotero 7).",
+	"applications": {
+		"zotero": {
+			"id": "special_tags_column@qiujv.com",
+			"update_url": "https://anyurl.com/",
+			"strict_min_version": "7.0",
+			"strict_max_version": "7.1.*"
+		}
+	},
+	"options_ui": { "page": "options.html" }
+}

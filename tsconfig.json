@@ -1,0 +1,10 @@
+{
+  "extends": "zotero-types/entries/sandbox",
+  "include": ["src/**/*.js"],
+  "exclude": ["node_modules"],
+  "compilerOptions": {
+    "outDir": "dist",
+    "allowJs": true,
+    "checkJs": true
+  }
+}
