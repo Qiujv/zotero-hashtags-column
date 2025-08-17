@@ -3,13 +3,13 @@
 	"name": "HashTags Column",
 	"version": "0.0.1",
 	"description": "Display hashtags in a dedicated column.",
+	"homepage_url": "https://github.com/Qiujv/zotero-hashtags-column#readme",
 	"applications": {
 		"zotero": {
 			"id": "hashtags_column@qiujv",
-			"update_url": "https://github.com/Qiujv/zotero-hashtags-column/releases/latest/download/zotero-style.xpi",
+			"update_url": "https://github.com/Qiujv/zotero-hashtags-column/releases/latest/download/update.json",
 			"strict_min_version": "7.0",
 			"strict_max_version": "7.*"
 		}
-	},
-	"options_ui": { "page": "options.html" }
+	}
 }

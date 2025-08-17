@@ -11,7 +11,7 @@ if exist "%ZIP_FILE%" del "%ZIP_FILE%"
 if exist "%XPI_FILE%" del "%XPI_FILE%"
 
 powershell -NoLogo -NoProfile -Command ^
-  "Compress-Archive -Path ('%~dp0src\bootstrap.js','%~dp0src\manifest.json') -DestinationPath '%ZIP_FILE%' -Force"
+  "Compress-Archive -Path '%~dp0src\*' -DestinationPath '%ZIP_FILE%' -Force"
 
 @REM zip 改名为 xpi
 ren "%ZIP_FILE%" "%FOLDER_NAME%.xpi"

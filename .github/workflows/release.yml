@@ -1,0 +1,57 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  release:
+    permissions:
+      contents: write
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Package xpi
+        run: |
+          cd src
+          zip -r ../zotero-hashtags-column.xpi *
+          cd ..
+
+      - name: Generate update.json
+        id: gen_update
+        run: |
+          VERSION=${GITHUB_REF#refs/tags/v}
+          HASH=$(sha512sum zotero-hashtags-column.xpi | cut -d ' ' -f 1)
+
+          cat <<EOF > update.json
+          {
+            "addons": {
+              "zotero-hashtags-column@qiujv.com": {
+                "updates": [
+                  {
+                    "version": "${VERSION}",
+                    "update_link": "https://github.com/${GITHUB_REPOSITORY}/releases/download/v${VERSION}/zotero-hashtags-column.xpi",
+                    "update_hash": "sha512:${HASH}",
+                    "applications": {
+                      "zotero": {
+                        "strict_min_version": "6.999",
+                        "strict_max_version": "7.*"
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+          EOF
+
+      - name: Create GitHub Release with Assets
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            zotero-hashtags-column.xpi
+            update.json
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

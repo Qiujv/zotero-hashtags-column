@@ -3,10 +3,28 @@ let addonId;
 /** @type {string} */
 let rootURI;
 
+const hashPrefixes = ["#", "@", "-", "!", "%", "^", "&", "*"];
+const prefixColors = ["#1976d2", "#f57c00", "#4caf50", "#9c27b0", "#2196f3", "#ff5722", "#009688", "#e91e63"];
+
 /** @param {any} data @param {any} reason */
 function install(data, reason) { }
 /** @param {any} data @param {any} reason */
 function uninstall(data, reason) { }
+
+// /**@returns {string[]} */
+// function getHashPrefixes() {
+//   try {
+//     const prefixesSetting = Zotero.Prefs.get('extensions.hashtags_column.prefixes', true);
+
+//     if (prefixesSetting && typeof prefixesSetting === 'string') {
+//       return prefixesSetting.split('');
+//     }
+//   } catch (/** @type {any} */ e) {
+//     Zotero.logError(new Error("HashTags Column: Error reading prefixes from settings - " + e.message));
+//   }
+
+//   return "#@-!%^&*".split('');
+// }
 
 const COLUMN = {
   dataKey: "hashTagsColumn",
@@ -22,8 +40,6 @@ const COLUMN = {
       return "";
     }
 
-    let hashPrefixes = ["#", "@", "!", "%"];
-
     try {
       const tagNames = [];
       for (const tag of item.getTags()) {
@@ -36,7 +52,8 @@ const COLUMN = {
 
       const hashTags = tagNames.filter(t => t && hashPrefixes.some(prefix => t.startsWith(prefix)));
 
-      return hashTags.join(" ");
+      // return hashTags.join(" ");
+      return JSON.stringify(hashTags);
     } catch (/** @type {any} */ e) {
       const errorMessage = e.message || String(e);
       Zotero.logError(new Error("HashTags Column: Error in dataProvider - " + errorMessage));
@@ -50,9 +67,15 @@ const COLUMN = {
     cell.className = `cell ${column.className}`
     if (!data) return cell;
 
-    const tags = data.split(" ").filter(t => t.length > 0);
+    /** @type {string[]} */
+    let tags = [];
+    try {
+      tags = JSON.parse(data);
+    } catch (e) {
+      tags = data.split(" ").filter(t => t.length > 0);
+    }
 
-    tags.forEach((tag, i) => {
+    tags.forEach((/** @type {string} */ tag, /** @type {number} */ i) => {
       if (i > 0) {
         cell.appendChild(doc.createTextNode(" "));
       }
@@ -60,20 +83,15 @@ const COLUMN = {
       const span = doc.createElement("span");
       span.textContent = tag;
 
-      switch (tag.charAt(0)) {
-        case "#":
-          span.style.setProperty("color", "#1976d2", "important");
-          break;
-        case "@":
-          span.style.setProperty("color", "#f57c00", "important");
-          break;
-        default:
-          span.style.setProperty("color", "#000000", "important");
-      }
+      const prefixIndex = hashPrefixes.indexOf(tag.charAt(0));
+      if (prefixIndex !== -1 && prefixIndex < prefixColors.length) {
+        span.style.setProperty("color", prefixColors[prefixIndex], "important");
+      } else { }
       cell.appendChild(span);
     });
     return cell;
   }
+
 };
 
 /** @param {any} data @param {any} reason */
@@ -85,7 +103,7 @@ function startup(data, reason) {
 
 /** @param {any} data @param {any} reason */
 function shutdown(data, reason) {
-  // if (reason === "APP_SHUTDOWN") return;
+  if (reason === "APP_SHUTDOWN") return;
   try {
     Zotero.ItemTreeManager.unregisterColumn(addonId);
   } catch (_) { }
