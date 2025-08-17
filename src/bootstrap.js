@@ -1,4 +1,7 @@
-let addonId, rootURI;
+/** @type {string} */
+let addonId;
+/** @type {string} */
+let rootURI;
 
 /** @param {any} data @param {any} reason */
 function install(data, reason) { }
@@ -6,9 +9,9 @@ function install(data, reason) { }
 function uninstall(data, reason) { }
 
 const COLUMN = {
-  dataKey: "specialTags",
-  label: "Special Tags",
-  pluginID: "special_tags_column@qiujv.com",
+  dataKey: "hashTagsColumn",
+  label: "Hash Tags",
+  pluginID: "hashtags_column@qiujv",
   width: "120",
   fixedWidth: false,
   zoteroPersist: ["width", "hidden", "sortDirection"],
@@ -19,11 +22,11 @@ const COLUMN = {
       return "";
     }
 
-    try {
-      const tags = item.getTags();
+    let hashPrefixes = ["#", "@", "!", "%"];
 
+    try {
       const tagNames = [];
-      for (const tag of tags) {
+      for (const tag of item.getTags()) {
         if (typeof tag === 'string') {
           tagNames.push(tag);
         } else if (tag && typeof tag === 'object') {
@@ -31,51 +34,46 @@ const COLUMN = {
         }
       }
 
-      let specialPrefixes = ["#", "@", "!", "%"];
+      const hashTags = tagNames.filter(t => t && hashPrefixes.some(prefix => t.startsWith(prefix)));
 
-      const specialTags = tagNames.filter(t => t && specialPrefixes.some(prefix => t.startsWith(prefix)));
-
-      const result = specialTags.join(" ");
-      return result;
+      return hashTags.join(" ");
     } catch (/** @type {any} */ e) {
       const errorMessage = e.message || String(e);
-      Zotero.logError(new Error("Special Tags Column: Error in dataProvider - " + errorMessage));
+      Zotero.logError(new Error("HashTags Column: Error in dataProvider - " + errorMessage));
       return "";
     }
   },
 
-  // /** @param {number} index @param {string} data @param {any} column @param {Document} cell */
-  // renderCell: (index, data, column, cell) => {
-  //   // 清空 cell 原有内容
-  //   cell.replaceChildren();
+  /** @param {number} index @param {string} data @param {any} column @param {boolean} isFirstColumn @param {Document} doc */
+  renderCell: (index, data, column, isFirstColumn, doc) => {
+    const cell = doc.createElement("span");
+    cell.className = `cell ${column.className}`
+    if (!data) return cell;
 
-  //   if (!data) return;
+    const tags = data.split(" ").filter(t => t.length > 0);
 
-  //   const document = Zotero.getMainWindow().document;
-  //   const tags = data.split(" ").filter(t => t.length > 0);
+    tags.forEach((tag, i) => {
+      if (i > 0) {
+        cell.appendChild(doc.createTextNode(" "));
+      }
 
-  //   tags.forEach((tag, i) => {
-  //     if (i > 0) {
-  //       cell.appendChild(document.createTextNode(" "));
-  //     }
+      const span = doc.createElement("span");
+      span.textContent = tag;
 
-  //     const span = document.createElement("span");
-  //     span.textContent = tag;
-
-  //     // 按前缀上色
-  //     switch (tag.charAt(0)) {
-  //       case "#":
-  //         span.style.setProperty("color", "#1976d2", "important");
-  //         break;
-  //       case "@":
-  //         span.style.setProperty("color", "#f57c00", "important");
-  //         break;
-  //       default:
-  //         span.style.setProperty("color", "#000000", "important");
-  //     }
-  //     cell.appendChild(span);
-  //   });
-  // }
+      switch (tag.charAt(0)) {
+        case "#":
+          span.style.setProperty("color", "#1976d2", "important");
+          break;
+        case "@":
+          span.style.setProperty("color", "#f57c00", "important");
+          break;
+        default:
+          span.style.setProperty("color", "#000000", "important");
+      }
+      cell.appendChild(span);
+    });
+    return cell;
+  }
 };
 
 /** @param {any} data @param {any} reason */
@@ -87,8 +85,8 @@ function startup(data, reason) {
 
 /** @param {any} data @param {any} reason */
 function shutdown(data, reason) {
-  if (reason === "APP_SHUTDOWN") return;
+  // if (reason === "APP_SHUTDOWN") return;
   try {
-    Zotero.ItemTreeManager.unregisterColumn("special_tags_column@qiujv.com");
+    Zotero.ItemTreeManager.unregisterColumn(addonId);
   } catch (_) { }
 }

@@ -1,14 +1,14 @@
 {
 	"manifest_version": 2,
-	"name": "Special Tags Column",
+	"name": "HashTags Column",
 	"version": "0.0.1",
-	"description": "Display pre-defined ‘special’ tags in a dedicated item-tree column (Zotero 7).",
+	"description": "Display hashtags in a dedicated column.",
 	"applications": {
 		"zotero": {
-			"id": "special_tags_column@qiujv.com",
-			"update_url": "https://anyurl.com/",
+			"id": "hashtags_column@qiujv",
+			"update_url": "https://github.com/Qiujv/zotero-hashtags-column/releases/latest/download/zotero-style.xpi",
 			"strict_min_version": "7.0",
-			"strict_max_version": "7.1.*"
+			"strict_max_version": "7.*"
 		}
 	},
 	"options_ui": { "page": "options.html" }
