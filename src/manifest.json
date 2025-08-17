@@ -1,7 +1,7 @@
 {
 	"manifest_version": 2,
 	"name": "HashTags Column",
-	"version": "0.0.1",
+	"version": "0.0.2",
 	"description": "Display hashtags in a dedicated column.",
 	"homepage_url": "https://github.com/Qiujv/zotero-hashtags-column#readme",
 	"applications": {
