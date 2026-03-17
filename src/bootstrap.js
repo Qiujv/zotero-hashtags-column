@@ -2,6 +2,8 @@
 let addonId;
 /** @type {string} */
 let rootURI;
+/** @type {string | false} */
+let registeredDataKey;
 
 const hashPrefixes = ["#", "@", "-", "!", "%", "^", "&", "*"];
 const prefixColors = ["#1976d2", "#f57c00", "#4caf50", "#9c27b0", "#2196f3", "#ff5722", "#009688", "#e91e63"];
@@ -98,13 +100,17 @@ const COLUMN = {
 function startup(data, reason) {
   addonId = data.id;
   rootURI = data.rootURI;
-  Zotero.ItemTreeManager.registerColumn(COLUMN);
+  Zotero.initializationPromise.then(() => {
+    registeredDataKey = Zotero.ItemTreeManager.registerColumn(COLUMN);
+  });
 }
 
 /** @param {any} data @param {any} reason */
 function shutdown(data, reason) {
   if (reason === "APP_SHUTDOWN") return;
   try {
-    Zotero.ItemTreeManager.unregisterColumn(addonId);
+    if (registeredDataKey) {
+      Zotero.ItemTreeManager.unregisterColumn(registeredDataKey);
+    }
   } catch (_) { }
 }

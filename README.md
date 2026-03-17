@@ -11,7 +11,7 @@ A Zotero plugin that adds a dedicated column to display hashtags starting with s
 
 ## Compatibility
 
-- Requires Zotero 7.0 or higher
+- Requires Zotero 7.0 or higher (including Zotero 8)
 
 # 中文说明
 
@@ -26,4 +26,4 @@ A Zotero plugin that adds a dedicated column to display hashtags starting with s
 
 ## 兼容性
 
-- 需要 Zotero 7.0 或更高版本
+- 需要 Zotero 7.0 或更高版本（包括 Zotero 8）
